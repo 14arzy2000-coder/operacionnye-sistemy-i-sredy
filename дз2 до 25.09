@@ -1,35 +1,30 @@
-import json
+import multiprocessing as mp
 import os
-import platform
-import psutil
+import time
+def welcome():
+    print(f"Старт welcome, PID: {os.getpid()}, PPID: {os.getppid()}")
+    time.sleep(2)
 
-def search_data():
-    comp_name = platform.node() + "_"
-    total_memory = round(psutil.virtual_memory().total / (1024 ** 3), 2)
-    free_memory = round(psutil.virtual_memory().available / (1024 ** 3), 2)
-    process_count = len(psutil.pids())
-    thread_count = sum(p.num_threads() for p in psutil.process_iter(['num_threads']) if p.info['num_threads'])
-    
-    disk_used = round(psutil.disk_usage('/').used / (1024 ** 3), 2)
-   
-    data = {
-        "Имя компьютера": comp_name,
-        "Общая память": total_memory,
-        "Свободная память": free_memory,
-        "Количество процессов": process_count,
-        "Количество потоков": thread_count,
-        "Занятая память жесткого диска": disk_used
-    }
-    return data
+def work():
+    print(f"Старт work, PID: {os.getpid()}, PPID: {os.getppid()}")
+    time.sleep(2)
 
-def save_data(data: dict):
-    name = "data.json"
-    with open(name, "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
+def finish():
+    print(f"Старт finish, PID: {os.getpid()}, PPID: {os.getppid()}")
+    time.sleep(2)
 
 def main():
-    data = search_data()
-    save_data(data)
+    print(f"Главный процесс PID: {os.getpid()}")
+    p1 = mp.Process(target=welcome)
+    p2 = mp.Process(target=work)
+    p3 = mp.Process(target=finish)
+
+    p1.start()
+    p1.join()
+    p2.start()
+    p2.join()
+    p3.start()
+    p3.join()
 
 if __name__ == "__main__":
     main()
